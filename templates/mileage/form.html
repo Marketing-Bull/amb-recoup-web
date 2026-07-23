@@ -6,6 +6,24 @@
     <a href="/mileage" class="btn btn-secondary">← Back</a>
 </div>
 
+{% if not entry and recent_trips %}
+<div class="card" style="max-width:640px;margin-bottom:1rem;">
+    <label class="form-label" style="margin-bottom:0.5rem;display:block;">Repeat a Recent Trip</label>
+    <div style="display:flex;flex-wrap:wrap;gap:0.5rem;">
+        {% for t in recent_trips %}
+        <button type="button" class="btn btn-secondary recent-trip-chip" style="font-size:0.8rem;"
+            data-start="{{ t.start_address or '' }}" data-end="{{ t.end_address or '' }}"
+            data-purpose="{{ t.purpose or '' }}" data-miles="{{ t.miles }}"
+            data-round-trip="{{ 'true' if t.round_trip else 'false' }}"
+            data-client-id="{{ t.client_id or '' }}" data-project-id="{{ t.project_id or '' }}">
+            {{ (t.start_address or 'Unnamed trip') ~ (' → ' ~ t.end_address if t.end_address else '') }}
+            &middot; {{ t.miles }} mi{% if t.round_trip %} RT{% endif %}
+        </button>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <div class="card" style="max-width:640px;">
     {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
     <form method="post" action="{% if entry %}/mileage/{{ entry.id }}{% else %}/mileage{% endif %}">
@@ -83,5 +101,22 @@ function filterProjects() {
 }
 
 clientSelect.addEventListener('change', filterProjects);
+
+document.querySelectorAll('.recent-trip-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+        document.querySelector('input[name="start_address"]').value = chip.dataset.start;
+        document.querySelector('input[name="end_address"]').value = chip.dataset.end;
+        document.querySelector('input[name="purpose"]').value = chip.dataset.purpose;
+        document.querySelector('input[name="miles"]').value = chip.dataset.miles;
+        document.getElementById('round_trip').checked = chip.dataset.roundTrip === 'true';
+        if (chip.dataset.clientId) {
+            clientSelect.value = chip.dataset.clientId;
+            filterProjects();
+        }
+        if (chip.dataset.projectId) {
+            projectSelect.value = chip.dataset.projectId;
+        }
+    });
+});
 </script>
 {% endblock %}
