@@ -144,3 +144,10 @@ async def duplicate_expense(request: Request, entry_id: str, user: UserContext =
     }
     supabase.table("expenses").insert(new_data).execute()
     return RedirectResponse(url="/expenses", status_code=302)
+
+
+@router.post("/{entry_id}/delete")
+async def delete_expense(request: Request, entry_id: str, user: UserContext = Depends(require_org_member)):
+    supabase = get_supabase_admin()
+    supabase.table("expenses").delete().eq("id", entry_id).eq("organization_id", user.organization_id).execute()
+    return RedirectResponse(url="/expenses", status_code=302)

@@ -137,3 +137,10 @@ async def duplicate_mileage(request: Request, entry_id: str, user: UserContext =
     }
     supabase.table("mileage_entries").insert(new_data).execute()
     return RedirectResponse(url="/mileage", status_code=302)
+
+
+@router.post("/{entry_id}/delete")
+async def delete_mileage(request: Request, entry_id: str, user: UserContext = Depends(require_org_member)):
+    supabase = get_supabase_admin()
+    supabase.table("mileage_entries").delete().eq("id", entry_id).eq("organization_id", user.organization_id).execute()
+    return RedirectResponse(url="/mileage", status_code=302)

@@ -39,6 +39,9 @@
                             <button type="submit" class="btn btn-sm btn-secondary">Duplicate</button>
                         </form>
                         <a href="/expenses/{{ e.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                        <form method="post" action="/expenses/{{ e.id }}/delete" style="display:inline;" onsubmit="return confirm('Delete this expense?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
