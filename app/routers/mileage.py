@@ -10,6 +10,14 @@ router = APIRouter()
 templates = Jinja2Templates(directory="templates")
 
 
+def get_mileage_rate(org_id: str) -> float:
+    """Org's configured $/mile rate, falling back to the IRS-standard default
+    used elsewhere in the app (dashboard.py, reports.py, settings.py)."""
+    supabase = get_supabase_admin()
+    resp = supabase.table("organization_settings").select("mileage_rate").eq("organization_id", org_id).single().execute()
+    return float(resp.data["mileage_rate"]) if resp.data and resp.data.get("mileage_rate") is not None else 0.67
+
+
 @router.get("/", response_class=HTMLResponse)
 async def list_mileage(request: Request, user: UserContext = Depends(require_org_member)):
     supabase = get_supabase_admin()
@@ -46,7 +54,8 @@ async def new_mileage_form(request: Request, user: UserContext = Depends(require
     return templates.TemplateResponse("mileage/form.html", {
         "request": request, "user": user, "entry": None,
         "clients": clients_resp.data or [], "projects": projects_resp.data or [],
-        "recent_trips": recent_trips(trips_resp.data or [])
+        "recent_trips": recent_trips(trips_resp.data or []),
+        "mileage_rate": get_mileage_rate(user.organization_id)
     })
 
 
@@ -96,7 +105,8 @@ async def edit_mileage_form(request: Request, entry_id: str, user: UserContext =
     projects_resp = supabase.table("projects").select("id,name,client_id").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
     return templates.TemplateResponse("mileage/form.html", {
         "request": request, "user": user, "entry": entry,
-        "clients": clients_resp.data or [], "projects": projects_resp.data or []
+        "clients": clients_resp.data or [], "projects": projects_resp.data or [],
+        "mileage_rate": get_mileage_rate(user.organization_id)
     })
 
 
