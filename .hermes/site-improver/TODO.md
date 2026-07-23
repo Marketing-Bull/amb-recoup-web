@@ -8,13 +8,18 @@ iOS/iPad/Mac). This file tracks parity gaps found by diffing the two codebases o
 Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > Nice-to-have.
 
 ## 🔴 Bugs found during audit (fix first)
-- [ ] **BUG-01** — `templates/time/form.html` line 5: malformed Jinja/HTML —
+- [x] **BUG-01** — `templates/time/form.html` line 5: malformed Jinja/HTML —
       `{% if entry %}Edit Time Entry{% else %}Log Time</h1>` is missing the closing
       `{% endif %}` before `</h1>`, and the opening `<h1 class="page-title">` tag has
       no matching close on the "else" branch. Renders broken HTML on the "new time
       entry" page. Compare with the correct pattern in `templates/expenses/form.html`
       line 5 and `templates/mileage/form.html` line 5.
-- [ ] **BUG-02** — Rate is NOT locked at save for time entries. Native app resolves
+      ✅ DONE 2026-07-23 (audit-flip) — already fixed in commit a21180e (same night
+      this TODO.md was seeded); the checkbox was never flipped. Re-verified
+      2026-07-23 by rendering `time/form.html` directly via Jinja2 for both the
+      new-entry and edit-entry states: `<h1 class="page-title">Log Time</h1>`
+      renders correctly, no unterminated `{% if %}` block, no broken HTML.
+- [x] **BUG-02** — Rate is NOT locked at save for time entries. Native app resolves
       the rate once via `RateResolver` and stores it on the entry permanently
       (`RateResolver.swift`: "Resolved once at save and locked on the entry; never
       recomputed"). Web app's `create_time` resolves the rate correctly, but
@@ -25,6 +30,11 @@ Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > N
       (`templates/time/form.html`) doesn't display the locked rate at all. Add a
       read-only "Rate: $X/hr (locked)" display to the edit form, sourced from
       `entry.rate` — currently invisible to the user.
+      ✅ DONE 2026-07-23 — added a read-only "Rate: $X/hr (locked)" field to
+      `templates/time/form.html`, shown only when editing an existing entry,
+      sourced from `entry.rate`. `update_time`'s payload correctly still excludes
+      `rate` (confirms the lock — this item was about visibility, not behavior).
+      Covered by `tests/test_time_form_template.py` (direct Jinja2 render test).
 - [ ] **BUG-03** — No delete action for mileage or expense entries (time entries have
       `/time/{id}/delete` in `time_entries.py` but `mileage.py` and `expenses.py` have
       no equivalent route or UI button). Native app allows deleting any entry via swipe.
