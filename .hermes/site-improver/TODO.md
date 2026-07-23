@@ -48,12 +48,19 @@ Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > N
       render tests in `tests/test_delete_actions_template.py`.
 
 ## 🟡 Core feature parity gaps
-- [ ] **PARITY-01** — Mileage: no "repeat a recent trip" quick-fill. Native app's
+- [x] **PARITY-01** — Mileage: no "repeat a recent trip" quick-fill. Native app's
       `RecentTripPicker.swift` + `Services/Recents.swift` let a user one-tap-recreate
       their last N trips (start/end address, purpose) without retyping. Web app has
       `/mileage/{id}/duplicate` (creates today's copy server-side) but no UI surfacing
       "recent trips" as tappable chips on the New Trip form — parity requires exposing
       the last 5 distinct (start,end,purpose) combos as clickable pills that fill the form.
+      ✅ DONE 2026-07-23 — added `recent_trips()` to `app/routers/mileage.py` (mirrors
+      `Recents.recentTrips`: dedupes by start/end/round_trip/miles, most-recent-first,
+      capped at 8), wired into `new_mileage_form` (fetches org's last 50 entries),
+      and rendered as clickable chips on `templates/mileage/form.html` (New Trip form
+      only, hidden on Edit) that JS-fill start/end/purpose/miles/round-trip/client/
+      project on click. Covered by `tests/test_mileage_recent_trips.py` (dedup/order/
+      limit logic + template render for New vs Edit states).
 - [ ] **PARITY-02** — Time: no "recent client/project pair" quick-fill and no smart
       default prefill. Native app's `RecentPairChips.swift` + form-prefill behavior
       auto-selects the last-used client + project on the New Time Entry form. Web

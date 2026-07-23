@@ -35,3 +35,22 @@ native SwiftUI app (amb-recoup). One entry per shipped PR.
   `templates/time/list.html`, `templates/mileage/list.html`,
   `templates/expenses/list.html`, `tests/test_delete_actions_template.py` (new).
   CI: ruff clean, bandit clean, pytest 9/9 passed (fresh venv).
+
+## 2026-07-23 — PR #2 (cont.)
+
+- **PARITY-01** — Added a "Repeat a Recent Trip" quick-fill to the mileage
+  New Trip form, matching the native app's `RecentTripPicker.swift` +
+  `Services/Recents.swift`. `recent_trips()` in `app/routers/mileage.py`
+  dedupes the org's mileage history by (start_address, end_address,
+  round_trip, miles), most-recent-first, capped at 8. `new_mileage_form`
+  fetches the org's last 50 entries and passes the distinct trips to the
+  template. `templates/mileage/form.html` renders them as clickable chips
+  (New Trip form only, hidden on Edit) that JS-fill start/end address,
+  purpose, miles, round-trip checkbox, and client/project selects on click —
+  no page reload, no new dependency. No Supabase schema change needed
+  (reads existing `mileage_entries` columns only). Files:
+  `app/routers/mileage.py`, `templates/mileage/form.html`,
+  `tests/test_mileage_recent_trips.py` (new — 5 tests covering dedup
+  ordering, limit, chip-render-on-New, chip-hidden-on-Edit,
+  no-chips-when-no-history). CI: ruff clean, bandit clean, pytest 14/14
+  passed (fresh venv).
