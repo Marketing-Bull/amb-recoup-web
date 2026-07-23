@@ -28,18 +28,18 @@
         <div class="form-group">
             <label class="form-label">Client</label>
             <select name="client_id" id="client_id" class="form-select">
-                <option value="" {% if not entry or not entry.client_id %}selected{% endif %}%>None</option>
+                <option value="" {% if entry %}{% if not entry.client_id %}selected{% endif %}{% elif not recent_client_id %}selected{% endif %}%>None</option>
                 {% for c in clients %}
-                <option value="{{ c.id }}" {% if entry and entry.client_id == c.id %}selected{% endif %}%>{{ c.name }}</option>
+                <option value="{{ c.id }}" {% if entry %}{% if entry.client_id == c.id %}selected{% endif %}{% elif recent_client_id == c.id %}selected{% endif %}%>{{ c.name }}</option>
                 {% endfor %}
             </select>
         </div>
         <div class="form-group">
             <label class="form-label">Project</label>
             <select name="project_id" id="project_id" class="form-select">
-                <option value="" {% if not entry or not entry.project_id %}selected{% endif %}%>None</option>
+                <option value="" {% if entry %}{% if not entry.project_id %}selected{% endif %}{% elif not recent_project_id %}selected{% endif %}%>None</option>
                 {% for p in projects %}
-                <option value="{{ p.id }}" data-client="{{ p.client_id or '' }}" {% if entry and entry.project_id == p.id %}selected{% endif %}%>{{ p.name }}</option>
+                <option value="{{ p.id }}" data-client="{{ p.client_id or '' }}" {% if entry %}{% if entry.project_id == p.id %}selected{% endif %}{% elif recent_project_id == p.id %}selected{% endif %}%>{{ p.name }}</option>
                 {% endfor %}
             </select>
         </div>

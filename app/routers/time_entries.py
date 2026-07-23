@@ -36,14 +36,34 @@ async def list_time(request: Request, user: UserContext = Depends(require_org_me
     })
 
 
+def most_recent_client_project(org_id: str) -> tuple[str | None, str | None]:
+    """Return (client_id, project_id) from the org's most recently created time
+    entry, mirroring the native app's RecentPairChips smart-default behavior."""
+    supabase = get_supabase_admin()
+    resp = (
+        supabase.table("time_entries")
+        .select("client_id,project_id")
+        .eq("organization_id", org_id)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    rows = resp.data or []
+    if not rows:
+        return None, None
+    return rows[0].get("client_id"), rows[0].get("project_id")
+
+
 @router.get("/new", response_class=HTMLResponse)
 async def new_time_form(request: Request, user: UserContext = Depends(require_org_member)):
     supabase = get_supabase_admin()
     clients_resp = supabase.table("clients").select("id,name").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
     projects_resp = supabase.table("projects").select("id,name,client_id").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
+    recent_client_id, recent_project_id = most_recent_client_project(user.organization_id)
     return templates.TemplateResponse("time/form.html", {
         "request": request, "user": user, "entry": None,
-        "clients": clients_resp.data or [], "projects": projects_resp.data or []
+        "clients": clients_resp.data or [], "projects": projects_resp.data or [],
+        "recent_client_id": recent_client_id, "recent_project_id": recent_project_id
     })
 
 
