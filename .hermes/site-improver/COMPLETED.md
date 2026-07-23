@@ -74,3 +74,25 @@ native SwiftUI app (amb-recoup). One entry per shipped PR.
   prefill-on-New, default-to-None-with-no-history, and
   edit-form-uses-entry-values-not-recent-prefill). CI: ruff clean, bandit
   clean, pytest 17/17 passed (fresh venv).
+
+## 2026-07-23 — PR #2 (cont. 3)
+
+- **PARITY-03** — Defaulted the Expense form's Category `<select>` to the
+  org's last-used category, matching the native app's `CategoryGrid.swift`
+  smart-default behavior (minimum-parity scope: only the smart default was
+  implemented, not the tappable icon-grid UI itself, per the item's own
+  "minimum parity" framing). Added `most_recent_category(org_id)` to
+  `app/routers/expenses.py`, which looks up the org's most-recently-created
+  `expenses` row (by `created_at`) and returns its `category`. Wired into
+  `new_expense_form` only — the edit form (`edit_expense_form`) is unchanged
+  and continues to use the entry's own saved category.
+  `templates/expenses/form.html`'s category `<select>` options now branch on
+  `entry` (edit mode) vs. `recent_category` (new mode, falling back to
+  "other" when the org has no expense history yet), so a user starting a
+  fresh expense gets their last-used category pre-selected instead of
+  always seeing "Other". No Supabase schema change needed (reads existing
+  `expenses` columns only). Files: `app/routers/expenses.py`,
+  `templates/expenses/form.html`, `tests/test_expense_form_recent_category.py`
+  (new — 3 tests covering prefill-on-New, default-to-other-with-no-history,
+  and edit-form-uses-entry-category-not-recent-prefill). CI: ruff clean,
+  bandit clean, pytest 20/20 passed (fresh venv).

@@ -74,11 +74,22 @@ Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > N
       `entry` (edit mode, unchanged) vs `recent_client_id`/`recent_project_id`
       (new mode). Covered by `tests/test_time_form_recent_prefill.py` (3 tests:
       prefill-on-New, default-to-None-with-no-history, edit-form-unaffected).
-- [ ] **PARITY-03** — Expenses: no category quick-grid. Native app's
+- [x] **PARITY-03** — Expenses: no category quick-grid. Native app's
       `CategoryGrid.swift` gives a tappable icon grid instead of a `<select>` dropdown,
       and defaults to the last-used category. Web app's `expenses/form.html` uses a
       plain `<select>` with no smart default. Minimum parity: default the category
       `<select>` to the last-used category for the org (not always "other").
+      ✅ DONE 2026-07-23 — added `most_recent_category(org_id)` to
+      `app/routers/expenses.py` (looks up the org's most-recently-created
+      expense, returns its category), wired into `new_expense_form` only.
+      `templates/expenses/form.html`'s category select now branches on
+      `entry` (edit mode, unchanged) vs `recent_category` (new mode, falls
+      back to "other" with no history). The tappable icon-grid UI itself
+      (vs. a `<select>`) was scoped out as out-of-minimum-parity per the
+      item's own "minimum parity" framing — only the smart default was
+      implemented. Covered by `tests/test_expense_form_recent_category.py`
+      (3 tests: prefill-on-New, default-to-other-with-no-history,
+      edit-form-unaffected).
 - [ ] **PARITY-04** — Dashboard: date-range picker parity is otherwise solid
       (today/this_week/this_month/last_month/this_year/all — matches
       `DateRangePreset` in the native app) — no action needed here, confirmed parity.
