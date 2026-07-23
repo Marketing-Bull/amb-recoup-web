@@ -35,10 +35,17 @@ Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > N
       sourced from `entry.rate`. `update_time`'s payload correctly still excludes
       `rate` (confirms the lock — this item was about visibility, not behavior).
       Covered by `tests/test_time_form_template.py` (direct Jinja2 render test).
-- [ ] **BUG-03** — No delete action for mileage or expense entries (time entries have
+- [x] **BUG-03** — No delete action for mileage or expense entries (time entries have
       `/time/{id}/delete` in `time_entries.py` but `mileage.py` and `expenses.py` have
       no equivalent route or UI button). Native app allows deleting any entry via swipe.
       Inconsistent CRUD surface across the three entry types.
+      ✅ DONE 2026-07-23 — added `POST /{entry_id}/delete` to `mileage.py` and
+      `expenses.py` (mirroring the existing `delete_time` handler: org-scoped
+      `.eq("organization_id", ...)` delete, redirect to the list page), plus a
+      "Delete" button with a `confirm()` prompt on all three list templates
+      (`time/list.html`, `mileage/list.html`, `expenses/list.html`) so CRUD is
+      now consistent across time/mileage/expenses. Covered by new template
+      render tests in `tests/test_delete_actions_template.py`.
 
 ## 🟡 Core feature parity gaps
 - [ ] **PARITY-01** — Mileage: no "repeat a recent trip" quick-fill. Native app's

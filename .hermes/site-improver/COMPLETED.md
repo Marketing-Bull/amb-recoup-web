@@ -23,3 +23,15 @@ native SwiftUI app (amb-recoup). One entry per shipped PR.
   the rate field appears on edit and is absent on the "new entry" form.
   Files: `templates/time/form.html`, `tests/test_time_form_template.py`.
   CI: ruff clean, bandit clean, pytest 6/6 passed (fresh venv).
+- **BUG-03** — Added `POST /{entry_id}/delete` routes to `app/routers/mileage.py`
+  and `app/routers/expenses.py`, mirroring the existing `delete_time` handler in
+  `time_entries.py` (org-scoped `.eq("organization_id", ...)` delete, redirect to
+  the list page). Added a "Delete" button with a `confirm()` prompt to all three
+  list templates (`templates/time/list.html`, `templates/mileage/list.html`,
+  `templates/expenses/list.html`) so time/mileage/expense entries now have a
+  consistent CRUD surface (matching the native app's swipe-to-delete on any
+  entry type). No Supabase schema change needed (existing tables already
+  support delete). Files: `app/routers/mileage.py`, `app/routers/expenses.py`,
+  `templates/time/list.html`, `templates/mileage/list.html`,
+  `templates/expenses/list.html`, `tests/test_delete_actions_template.py` (new).
+  CI: ruff clean, bandit clean, pytest 9/9 passed (fresh venv).
