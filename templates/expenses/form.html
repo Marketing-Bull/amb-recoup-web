@@ -24,7 +24,7 @@
                 <label class="form-label">Category</label>
                 <select name="category" class="form-select">
                     {% for c in categories %}
-                    <option value="{{ c }}" {% if entry and entry.category == c %}selected{% endif %}%>{{ c|title }}</option>
+                    <option value="{{ c }}" {% if entry %}{% if entry.category == c %}selected{% endif %}{% elif recent_category %}{% if recent_category == c %}selected{% endif %}{% elif c == 'other' %}selected{% endif %}%>{{ c|title }}</option>
                     {% endfor %}
                 </select>
             </div>
