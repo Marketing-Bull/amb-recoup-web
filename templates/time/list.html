@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Time Entries</h1>
+    <a href="/time/new" class="btn btn-primary">+ Log Time</a>
+</div>
+
+<div class="card">
+    {% if entries %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Hours</th>
+                    <th>Rate</th>
+                    <th>Total</th>
+                    <th>Billable</th>
+                    <th>Client</th>
+                    <th>Project</th>
+                    <th>Details</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr>
+                    <td>{{ e.date[:10] }}</td>
+                    <td>{{ "%.2f"|format(e.hours) }}</td>
+                    <td>${{ "%.2f"|format(e.rate) }}</td>
+                    <td>${{ "%.2f"|format(e.hours * e.rate) }}</td>
+                    <td>{% if e.billable %}<span class="badge badge-green">Billable</span>{% else %}<span class="badge badge-gray">No</span>{% endif %}</td>
+                    <td>{{ e.clients.name if e.clients else '—' }}</td>
+                    <td>{{ e.projects.name if e.projects else '—' }}</td>
+                    <td><span style="font-size:0.75rem;color:var(--color-text-muted);">{{ e.details[:60] if e.details else '' }}</span></td>
+                    <td style="text-align:right;">
+                        <a href="/time/{{ e.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">⏱️</div>
+        <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">No time entries yet</h2>
+        <p>Log hours against clients and projects.</p>
+        <a href="/time/new" class="btn btn-primary" style="margin-top:1rem;">Log Time</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

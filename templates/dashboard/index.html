@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Dashboard</h1>
+    <div class="filter-bar">
+        <form method="get" action="/dashboard" style="display:flex;gap:0.5rem;">
+            <select name="preset" onchange="this.form.submit()" class="form-select">
+                <option value="today" {% if preset == 'today' %}selected{% endif %}%>Today</option>
+                <option value="this_week" {% if preset == 'this_week' %}selected{% endif %}%>This Week</option>
+                <option value="this_month" {% if preset == 'this_month' %}selected{% endif %}%>This Month</option>
+                <option value="last_month" {% if preset == 'last_month' %}selected{% endif %}%>Last Month</option>
+                <option value="this_year" {% if preset == 'this_year' %}selected{% endif %}%>This Year</option>
+                <option value="all" {% if preset == 'all' %}selected{% endif %}%>All Time</option>
+            </select>
+            <select name="group_by" onchange="this.form.submit()" class="form-select">
+                <option value="client" {% if group_by == 'client' %}selected{% endif %}%>By Client</option>
+                <option value="project" {% if group_by == 'project' %}selected{% endif %}%>By Project</option>
+            </select>
+        </form>
+    </div>
+</div>
+
+{% if has_data %}
+<div class="card-grid">
+    <div class="card stat-card">
+        <div class="stat-label">Billable Time</div>
+        <div class="stat-value">${{ "%.2f"|format(billable_time_value|float) }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Hours</div>
+        <div class="stat-value">{{ "%.1f"|format(total_hours) }}</div>
+        {% if unbilled_hours > 0 %}
+        <div class="stat-subtitle">{{ "%.1f"|format(unbilled_hours) }} non-billable</div>
+        {% endif %}
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Mileage Value</div>
+        <div class="stat-value">${{ "%.2f"|format(mileage_value|float) }}</div>
+        <div class="stat-subtitle">@ ${{ "%.2f"|format(mileage_rate|float) }}/mi</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Total Miles</div>
+        <div class="stat-value">{{ "%.1f"|format(total_miles) }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Expenses</div>
+        <div class="stat-value">${{ "%.2f"|format(expense_total|float) }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Billable Expenses</div>
+        <div class="stat-value">${{ "%.2f"|format(billable_expenses|float) }}</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="font-size: 1rem; font-weight: 600; margin-bottom: 1rem;">Breakdown{% if group_by == 'client' %} by Client{% else %} by Project{% endif %}</h2>
+    {% if breakdown %}
+    <div class="breakdown-list">
+        {% for row in breakdown %}
+        <div class="breakdown-item">
+            <div>
+                <div class="breakdown-name">{{ row.name }}</div>
+                <div class="breakdown-details">
+                    Time ${{ "%.2f"|format(row.time_value|float) }} · Mileage ${{ "%.2f"|format(row.mileage_value|float) }} · Expenses ${{ "%.2f"|format(row.expense_value|float) }}
+                </div>
+            </div>
+            <div style="font-weight: 600;">${{ "%.2f"|format(row.combined|float) }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color: var(--color-text-muted); padding: 2rem; text-align: center;">No entries in this date range.</p>
+    {% endif %}
+</div>
+{% else %}
+<div class="empty-state">
+    <div class="empty-state-icon">📊</div>
+    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">Nothing Tracked Yet</h2>
+    <p>Add a client, then log time, trips, and expenses — totals show up here.</p>
+    <a href="/clients/new" class="btn btn-primary" style="margin-top: 1rem;">Add Your First Client</a>
+</div>
+{% endif %}
+{% endblock %}

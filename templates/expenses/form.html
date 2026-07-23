@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{% if entry %}Edit Expense{% else %}New Expense{% endif %}</h1>
+    <a href="/expenses" class="btn btn-secondary">← Back</a>
+</div>
+
+<div class="card" style="max-width:640px;">
+    {% if error %}<div class="alert alert-error">{{ error }}</div>{% endif %}
+    <form method="post" action="{% if entry %}/expenses/{{ entry.id }}{% else %}/expenses{% endif %}" enctype="multipart/form-data">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Date</label>
+                <input type="date" name="date" class="form-input" value="{{ entry.date[:10] if entry else '' }}" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Amount</label>
+                <input type="number" step="0.01" name="amount" class="form-input" value="{{ entry.amount if entry else '' }}" required>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select name="category" class="form-select">
+                    {% for c in categories %}
+                    <option value="{{ c }}" {% if entry and entry.category == c %}selected{% endif %}%>{{ c|title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Vendor</label>
+                <input type="text" name="vendor" class="form-input" value="{{ entry.vendor if entry else '' }}">
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Details</label>
+            <textarea name="details" class="form-textarea">{{ entry.details if entry else '' }}</textarea>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;">
+            <input type="checkbox" id="billable" name="billable" {% if entry and entry.billable %}checked{% endif %}>
+            <label for="billable" style="font-size:0.875rem;margin:0;">Billable</label>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Recurring</label>
+            <select name="recurring" class="form-select">
+                <option value="none" {% if not entry or entry.recurring == 'none' %}selected{% endif %}%>None</option>
+                <option value="weekly" {% if entry and entry.recurring == 'weekly' %}selected{% endif %}%>Weekly</option>
+                <option value="monthly" {% if entry and entry.recurring == 'monthly' %}selected{% endif %}%>Monthly</option>
+                <option value="yearly" {% if entry and entry.recurring == 'yearly' %}selected{% endif %}%>Yearly</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Receipt</label>
+            {% if entry and entry.receipt_url %}
+            <p style="margin-bottom:0.5rem;"><a href="{{ entry.receipt_url }}" target="_blank">View current receipt</a></p>
+            {% endif %}
+            <input type="file" name="receipt" class="form-input" accept="image/*,.pdf">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Client</label>
+            <select name="client_id" id="client_id" class="form-select">
+                <option value="" {% if not entry or not entry.client_id %}selected{% endif %}%>None</option>
+                {% for c in clients %}
+                <option value="{{ c.id }}" {% if entry and entry.client_id == c.id %}selected{% endif %}%>{{ c.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Project</label>
+            <select name="project_id" id="project_id" class="form-select">
+                <option value="" {% if not entry or not entry.project_id %}selected{% endif %}%>None</option>
+                {% for p in projects %}
+                <option value="{{ p.id }}" data-client="{{ p.client_id or '' }}" {% if entry and entry.project_id == p.id %}selected{% endif %}%>{{ p.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+            <button type="submit" class="btn btn-primary">{% if entry %}Save Changes{% else %}Add Expense{% endif %}</button>
+            <a href="/expenses" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
+
+<script>
+const clientSelect = document.getElementById('client_id');
+const projectSelect = document.getElementById('project_id');
+const allProjects = Array.from(projectSelect.options).slice(1);
+
+function filterProjects() {
+    const cid = clientSelect.value;
+    const current = projectSelect.value;
+    projectSelect.innerHTML = '\u003coption value=""\u003eNone\u003c/option\u003e';
+    allProjects.forEach(opt => {
+        if (!cid || opt.dataset.client === cid || (!opt.dataset.client && !cid)) {
+            projectSelect.appendChild(opt.cloneNode(true));
+        }
+    });
+    const stillAvailable = Array.from(projectSelect.options).some(o => o.value === current);
+    if (stillAvailable) projectSelect.value = current;
+}
+
+clientSelect.addEventListener('change', filterProjects);
+</script>
+{% endblock %}

@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Admin Dashboard</h1>
+    <a href="/admin/organizations" class="btn btn-primary">Manage Organizations</a>
+</div>
+
+<div class="admin-grid">
+    <div class="admin-stat">
+        <div class="admin-stat-value">{{ org_count }}</div>
+        <div class="admin-stat-label">Organizations</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat-value">{{ member_count }}</div>
+        <div class="admin-stat-label">Members</div>
+    </div>
+    <div class="admin-stat">
+        <div class="admin-stat-value">{{ user_count }}</div>
+        <div class="admin-stat-label">Users</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2 style="font-size:1rem;font-weight:600;margin-bottom:1rem;">Organizations</h2>
+    {% if orgs %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Slug</th>
+                    <th>Owner</th>
+                    <th>Active</th>
+                    <th>Created</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for org in orgs %}
+                <tr>
+                    <td>{{ org.name }}</td>
+                    <td><code style="font-size:0.75rem;">{{ org.slug }}</code></td>
+                    <td>{{ org.profiles.email if org.profiles else '—' }}</td>
+                    <td>{% if org.is_active %}<span class="badge badge-green">Yes</span>{% else %}<span class="badge badge-red">No</span>{% endif %}</td>
+                    <td>{{ org.created_at[:10] }}</td>
+                    <td style="text-align:right;">
+                        <a href="/admin/organizations/{{ org.id }}" class="btn btn-sm btn-secondary">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color:var(--color-text-muted);">No organizations yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

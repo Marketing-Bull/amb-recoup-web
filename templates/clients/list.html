@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Clients</h1>
+    <a href="/clients/new" class="btn btn-primary">+ New Client</a>
+</div>
+
+<div class="card">
+    {% if clients %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Rate</th>
+                    <th>Contact</th>
+                    <th>Status</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for client in clients %}
+                <tr>
+                    <td><a href="/clients/{{ client.id }}/edit">{{ client.name }}</a></td>
+                    <td>{% if client.hourly_rate %}${{ "%.2f"|format(client.hourly_rate) }}/hr{% else %}—{% endif %}</td>
+                    <td>
+                        {% if client.contact_name %}{{ client.contact_name }}{% endif %}
+                        {% if client.contact_email %}<br><span style="font-size:0.75rem;color:var(--color-text-muted)">{{ client.contact_email }}</span>{% endif %}
+                    </td>
+                    <td>
+                        {% if client.is_archived %}<span class="badge badge-gray">Archived</span>{% else %}<span class="badge badge-green">Active</span>{% endif %}
+                    </td>
+                    <td style="text-align:right;">
+                        <a href="/clients/{{ client.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">👤</div>
+        <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">No clients yet</h2>
+        <p>Add your first client to start tracking time and expenses.</p>
+        <a href="/clients/new" class="btn btn-primary" style="margin-top:1rem;">Add Client</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Mileage</h1>
+    <a href="/mileage/new" class="btn btn-primary">+ Log Trip</a>
+</div>
+
+<div class="card">
+    {% if entries %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Route</th>
+                    <th>Purpose</th>
+                    <th>Miles</th>
+                    <th>Total Miles</th>
+                    <th>Billable</th>
+                    <th>Client</th>
+                    <th>Project</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr>
+                    <td>{{ e.date[:10] }}</td>
+                    <td><span style="font-size:0.75rem;">{{ e.start_address[:40] if e.start_address else '—' }} → {{ e.end_address[:40] if e.end_address else '—' }}</span>{% if e.round_trip %}<span class="badge badge-yellow" style="margin-left:0.25rem;">RT</span>{% endif %}</td>
+                    <td><span style="font-size:0.75rem;">{{ e.purpose[:50] if e.purpose else '' }}</span></td>
+                    <td>{{ "%.1f"|format(e.miles) }}</td>
+                    <td>{{ "%.1f"|format(e.total_miles) }}</td>
+                    <td>{% if e.billable %}<span class="badge badge-green">Billable</span>{% else %}—{% endif %}</td>
+                    <td>{{ e.clients.name if e.clients else '—' }}</td>
+                    <td>{{ e.projects.name if e.projects else '—' }}</td>
+                    <td style="text-align:right;">
+                        <form method="post" action="/mileage/{{ e.id }}/duplicate" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-secondary">Duplicate</button>
+                        </form>
+                        <a href="/mileage/{{ e.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">🚗</div>
+        <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">No trips yet</h2>
+        <p>Log mileage to track reimbursable travel.</p>
+        <a href="/mileage/new" class="btn btn-primary" style="margin-top:1rem;">Log Trip</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

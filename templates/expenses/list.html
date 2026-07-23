@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Expenses</h1>
+    <a href="/expenses/new" class="btn btn-primary">+ Add Expense</a>
+</div>
+
+<div class="card">
+    {% if entries %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Amount</th>
+                    <th>Category</th>
+                    <th>Vendor</th>
+                    <th>Billable</th>
+                    <th>Recurring</th>
+                    <th>Client</th>
+                    <th>Project</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in entries %}
+                <tr>
+                    <td>{{ e.date[:10] }}</td>
+                    <td>${{ "%.2f"|format(e.amount) }}</td>
+                    <td><span class="badge badge-blue">{{ e.category|title }}</span></td>
+                    <td><span style="font-size:0.75rem;">{{ e.vendor[:40] if e.vendor else '—' }}</span></td>
+                    <td>{% if e.billable %}<span class="badge badge-green">Billable</span>{% else %}—{% endif %}</td>
+                    <td>{% if e.recurring != 'none' %}<span class="badge badge-yellow">{{ e.recurring|title }}</span>{% else %}—{% endif %}</td>
+                    <td>{{ e.clients.name if e.clients else '—' }}</td>
+                    <td>{{ e.projects.name if e.projects else '—' }}</td>
+                    <td style="text-align:right;">
+                        <form method="post" action="/expenses/{{ e.id }}/duplicate" style="display:inline;">
+                            <button type="submit" class="btn btn-sm btn-secondary">Duplicate</button>
+                        </form>
+                        <a href="/expenses/{{ e.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">💳</div>
+        <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">No expenses yet</h2>
+        <p>Track reimbursable costs, software, meals, and more.</p>
+        <a href="/expenses/new" class="btn btn-primary" style="margin-top:1rem;">Add Expense</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

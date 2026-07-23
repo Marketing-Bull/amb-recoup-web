@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Export CSV</h1>
+</div>
+
+<div class="card-grid">
+    <div class="card" style="display:flex;flex-direction:column;gap:0.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;">Clients</h3>
+        <p style="font-size:0.875rem;color:var(--color-text-muted);">All clients with rates and contact info.</p>
+        <a href="/reports/clients.csv" class="btn btn-primary" style="margin-top:auto;">Download CSV</a>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:0.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;">Projects</h3>
+        <p style="font-size:0.875rem;color:var(--color-text-muted);">All projects with status and rate overrides.</p>
+        <a href="/reports/projects.csv" class="btn btn-primary" style="margin-top:auto;">Download CSV</a>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:0.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;">Time Entries</h3>
+        <p style="font-size:0.875rem;color:var(--color-text-muted);">Logged hours with rates and totals.</p>
+        <a href="/reports/time.csv" class="btn btn-primary" style="margin-top:auto;">Download CSV</a>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:0.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;">Expenses</h3>
+        <p style="font-size:0.875rem;color:var(--color-text-muted);">All expenses with categories and vendors.</p>
+        <a href="/reports/expenses.csv" class="btn btn-primary" style="margin-top:auto;">Download CSV</a>
+    </div>
+    <div class="card" style="display:flex;flex-direction:column;gap:0.5rem;">
+        <h3 style="font-size:1rem;font-weight:600;">Mileage</h3>
+        <p style="font-size:0.875rem;color:var(--color-text-muted);">Trips with mileage values and totals.</p>
+        <a href="/reports/mileage.csv" class="btn btn-primary" style="margin-top:auto;">Download CSV</a>
+    </div>
+</div>
+{% endblock %}

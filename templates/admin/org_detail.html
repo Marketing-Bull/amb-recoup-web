@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">{{ org.name }}</h1>
+    <a href="/admin/organizations" class="btn btn-secondary">← Back</a>
+</div>
+
+<div class="card-grid" style="margin-bottom:1.5rem;">
+    <div class="card stat-card">
+        <div class="stat-label">Clients</div>
+        <div class="stat-value">{{ client_count }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Projects</div>
+        <div class="stat-value">{{ project_count }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Time Entries</div>
+        <div class="stat-value">{{ time_count }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Expenses</div>
+        <div class="stat-value">{{ expense_count }}</div>
+    </div>
+    <div class="card stat-card">
+        <div class="stat-label">Mileage Entries</div>
+        <div class="stat-value">{{ mileage_count }}</div>
+    </div>
+</div>
+
+<div class="card" style="margin-bottom:1.5rem;">
+    <h2 style="font-size:1rem;font-weight:600;margin-bottom:1rem;">Members</h2>
+    {% if members %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Invited</th>
+                    <th>Joined</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in members %}
+                <tr>
+                    <td>{{ m.email }}</td>
+                    <td>
+                        <form method="post" action="/admin/organizations/{{ org.id }}/members/{{ m.id }}/role" style="display:flex;gap:0.25rem;">
+                            <select name="role" class="form-select" style="font-size:0.75rem;padding:0.25rem 0.5rem;">
+                                <option value="admin" {% if m.role == 'admin' %}selected{% endif %}%>Admin</option>
+                                <option value="member" {% if m.role == 'member' %}selected{% endif %}%>Member</option>
+                                <option value="viewer" {% if m.role == 'viewer' %}selected{% endif %}%>Viewer</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-secondary">Update</button>
+                        </form>
+                    </td>
+                    <td>{{ m.invited_at[:10] if m.invited_at else '—' }}</td>
+                    <td>{{ m.joined_at[:10] if m.joined_at else '—' }}</td>
+                    <td style="text-align:right;">
+                        <form method="post" action="/admin/organizations/{{ org.id }}/members/{{ m.id }}/remove" onsubmit="return confirm('Remove this member?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="color:var(--color-text-muted);">No members yet.</p>
+    {% endif %}
+</div>
+
+<div class="card" style="max-width:480px;">
+    <h2 style="font-size:1rem;font-weight:600;margin-bottom:1rem;">Invite Member</h2>
+    <form method="post" action="/admin/organizations/{{ org.id }}/invite">
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Email</label>
+                <input type="email" name="email" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Role</label>
+                <select name="role" class="form-select">
+                    <option value="member">Member</option>
+                    <option value="admin">Admin</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">Invite</button>
+    </form>
+</div>
+{% endblock %}

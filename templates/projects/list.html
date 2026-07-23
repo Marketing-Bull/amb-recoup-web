@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-title">Projects</h1>
+    <a href="/projects/new" class="btn btn-primary">+ New Project</a>
+</div>
+
+<div class="card">
+    {% if projects %}
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Client</th>
+                    <th>Rate Override</th>
+                    <th>Status</th>
+                    <th>Archived</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td><a href="/projects/{{ project.id }}/edit">{{ project.name }}</a></td>
+                    <td>{{ project.clients.name if project.clients else '—' }}</td>
+                    <td>{% if project.hourly_rate_override %}${{ "%.2f"|format(project.hourly_rate_override) }}/hr{% else %}—{% endif %}</td>
+                    <td>
+                        {% if project.status == 'active' %}<span class="badge badge-green">Active</span>
+                        {% elif project.status == 'on_hold' %}<span class="badge badge-yellow">On Hold</span>
+                        {% else %}<span class="badge badge-gray">Completed</span>
+                        {% endif %}
+                    </td>
+                    <td>{% if project.is_archived %}<span class="badge badge-gray">Yes</span>{% else %}—{% endif %}</td>
+                    <td style="text-align:right;">
+                        <a href="/projects/{{ project.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📁</div>
+        <h2 style="font-size:1.25rem;font-weight:600;margin-bottom:0.5rem;">No projects yet</h2>
+        <p>Create a project to track time and expenses against it.</p>
+        <a href="/projects/new" class="btn btn-primary" style="margin-top:1rem;">Add Project</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
