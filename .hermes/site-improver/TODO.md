@@ -99,10 +99,21 @@ Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > N
       Documented here so a future run doesn't mistakenly "fix" this.
 
 ## 🟢 UX parity (lower priority, larger effort)
-- [ ] **UX-01** — Mileage: no round-trip live-preview of total miles before submit
+- [x] **UX-01** — Mileage: no round-trip live-preview of total miles before submit
       (native app likely shows doubled total inline; verify against `MileageFormView.swift`
       before implementing — needs a small JS listener on the round_trip checkbox +
       miles input to show "Total: X mi" without a page reload).
+      ✅ DONE 2026-07-23 — verified `MileageFormView.swift` line 79 shows
+      `Text("\(Formatters.milesString(totalMiles)) ≈ \(Formatters.currencyString(...))
+      @ \(Formatters.currencyString(mileageRate))/mi")`, computed live from
+      `totalMiles` (miles × 2 if round trip). Added `get_mileage_rate(org_id)`
+      to `app/routers/mileage.py` (mirrors the existing `organization_settings.
+      mileage_rate` lookup pattern from `settings.py`/`dashboard.py`), wired
+      into both `new_mileage_form` and `edit_mileage_form`, and added a JS
+      listener on the `miles` input + `round_trip` checkbox in
+      `templates/mileage/form.html` that live-updates a "Total: X mi ≈ $Y @
+      $Z/mi" preview with no page reload (also wired into the recent-trip-chip
+      click handler). Covered by `tests/test_mileage_live_preview.py` (5 tests).
 - [ ] **UX-02** — No empty-state icons/copy matching native app's
       `EmptyStateView` tone across all list pages — audit `templates/*/list.html`
       empty states for consistency (some have icons, verify all do).

@@ -46,12 +46,16 @@
             </div>
             <div class="form-group">
                 <label class="form-label">Miles</label>
-                <input type="number" step="0.1" name="miles" class="form-input" value="{{ entry.miles if entry else '' }}" required>
+                <input type="number" step="0.1" name="miles" id="miles" class="form-input" value="{{ entry.miles if entry else '' }}" required>
             </div>
         </div>
         <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;">
             <input type="checkbox" id="round_trip" name="round_trip" {% if entry and entry.round_trip %}checked{% endif %}>
             <label for="round_trip" style="font-size:0.875rem;margin:0;">Round Trip</label>
+        </div>
+        <div class="form-group" id="miles-preview" style="font-size:0.85rem;color:var(--text-secondary,#666);margin-top:-0.5rem;">
+            Total: <span id="miles-preview-value">0</span> mi
+            <span id="miles-preview-value-cost"></span>
         </div>
         <div class="form-group" style="display:flex;align-items:center;gap:0.5rem;">
             <input type="checkbox" id="billable" name="billable" {% if not entry or entry.billable %}checked{% endif %}>
@@ -83,9 +87,25 @@
 </div>
 
 <script>
+const MILEAGE_RATE = {{ (mileage_rate or 0.67) }};
 const clientSelect = document.getElementById('client_id');
 const projectSelect = document.getElementById('project_id');
 const allProjects = Array.from(projectSelect.options).slice(1);
+const milesInput = document.getElementById('miles');
+const roundTripCheckbox = document.getElementById('round_trip');
+const milesPreviewValue = document.getElementById('miles-preview-value');
+const milesPreviewCost = document.getElementById('miles-preview-value-cost');
+
+function updateMilesPreview() {
+    const base = parseFloat(milesInput.value) || 0;
+    const total = roundTripCheckbox.checked ? base * 2 : base;
+    milesPreviewValue.textContent = total.toFixed(1);
+    milesPreviewCost.textContent = ' \u2248 $' + (total * MILEAGE_RATE).toFixed(2) + ' @ $' + MILEAGE_RATE.toFixed(2) + '/mi';
+}
+
+milesInput.addEventListener('input', updateMilesPreview);
+roundTripCheckbox.addEventListener('change', updateMilesPreview);
+updateMilesPreview();
 
 function filterProjects() {
     const cid = clientSelect.value;
@@ -109,6 +129,7 @@ document.querySelectorAll('.recent-trip-chip').forEach(chip => {
         document.querySelector('input[name="purpose"]').value = chip.dataset.purpose;
         document.querySelector('input[name="miles"]').value = chip.dataset.miles;
         document.getElementById('round_trip').checked = chip.dataset.roundTrip === 'true';
+        updateMilesPreview();
         if (chip.dataset.clientId) {
             clientSelect.value = chip.dataset.clientId;
             filterProjects();
