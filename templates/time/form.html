@@ -19,6 +19,12 @@
                 <input type="number" step="0.01" name="hours" class="form-input" value="{{ entry.hours if entry else '' }}" required>
             </div>
         </div>
+        {% if entry %}
+        <div class="form-group">
+            <label class="form-label">Rate</label>
+            <input type="text" class="form-input" value="${{ '%.2f'|format(entry.rate) }}/hr (locked)" readonly disabled>
+        </div>
+        {% endif %}
         <div class="form-group">
             <label class="form-label">Client</label>
             <select name="client_id" id="client_id" class="form-select">
