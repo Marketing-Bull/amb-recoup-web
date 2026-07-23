@@ -96,3 +96,27 @@ native SwiftUI app (amb-recoup). One entry per shipped PR.
   (new — 3 tests covering prefill-on-New, default-to-other-with-no-history,
   and edit-form-uses-entry-category-not-recent-prefill). CI: ruff clean,
   bandit clean, pytest 20/20 passed (fresh venv).
+
+## 2026-07-23 — feature-parity-2 (PR TBD, first run since main merge)
+
+- **UX-01** — Verified `MileageFormView.swift` (native app) shows a live
+  "X mi ≈ $Y @ $Z/mi" preview under the Miles/Round Trip fields, computed
+  from `totalMiles` (miles doubled when round trip is on) and the org's
+  configured mileage rate. Web app's mileage form had no equivalent —
+  users had to submit to see the round-trip-doubled total or its dollar
+  value. Added `get_mileage_rate(org_id)` to `app/routers/mileage.py`
+  (reuses the existing `organization_settings.mileage_rate` lookup
+  pattern already used in `settings.py`/`dashboard.py`/`reports.py`,
+  falling back to the 0.67 IRS-standard default), wired it into both
+  `new_mileage_form` and `edit_mileage_form`, and added a vanilla-JS
+  listener on the `miles` input + `round_trip` checkbox in
+  `templates/mileage/form.html` that live-updates a "Total: X mi ≈ $Y @
+  $Z/mi" preview span with no page reload — also wired into the
+  recent-trip-chip click handler so filling from a chip updates the
+  preview immediately. No Supabase schema change needed. Files:
+  `app/routers/mileage.py`, `templates/mileage/form.html`,
+  `tests/test_mileage_live_preview.py` (new — 5 tests covering preview
+  markup on New and Edit forms, rate correctly threaded into the JS
+  constant, default rate when missing, and the chip-click preview
+  update). CI: ruff clean, bandit clean, pytest 25/25 passed (fresh venv).
+
