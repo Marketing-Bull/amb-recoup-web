@@ -1,9 +1,7 @@
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from uuid import uuid4
-from datetime import datetime
-from app.auth import get_current_user, require_superuser
+from app.auth import require_superuser
 from app.models import UserContext
 from app.database import get_supabase_admin
 

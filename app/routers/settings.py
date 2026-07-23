@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from app.auth import get_current_user, require_org_member
+from app.auth import require_org_member
 from app.models import UserContext
 from app.database import get_supabase_admin
 
