@@ -10,5 +10,5 @@ pydantic-settings==2.3.0
 pytest==8.3.0
 pytest-asyncio==0.24.0
 pyjwt==2.9.0
-ruff==0.6.9
+ruff==0.15.22
 bandit==1.7.10
