@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Depends, Form
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from uuid import uuid4
-from app.auth import get_current_user, require_org_member
+from app.auth import require_org_member
 from app.models import UserContext
 from app.database import get_supabase_admin
 
@@ -54,7 +54,7 @@ async def create_project(
     if hourly_rate_override:
         try:
             data["hourly_rate_override"] = float(hourly_rate_override)
-        except:
+        except (ValueError, TypeError, ArithmeticError):
             pass
     supabase.table("projects").insert(data).execute()
     return RedirectResponse(url="/projects", status_code=302)
@@ -96,7 +96,7 @@ async def update_project(
     if hourly_rate_override:
         try:
             data["hourly_rate_override"] = float(hourly_rate_override)
-        except:
+        except (ValueError, TypeError, ArithmeticError):
             pass
     supabase.table("projects").update(data).eq("id", project_id).eq("organization_id", user.organization_id).execute()
     return RedirectResponse(url="/projects", status_code=302)

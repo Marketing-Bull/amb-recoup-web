@@ -5,7 +5,7 @@ import csv
 import io
 from datetime import datetime
 from decimal import Decimal
-from app.auth import get_current_user, require_org_member
+from app.auth import require_org_member
 from app.models import UserContext
 from app.database import get_supabase_admin
 

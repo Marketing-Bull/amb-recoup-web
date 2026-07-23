@@ -1,0 +1,29 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4
+      - uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Lint (ruff)
+        run: ruff check .
+      - name: Security scan (bandit)
+        run: bandit -r app -ll
+      - name: Run tests
+        run: pytest -q
+        env:
+          RECOUP_SUPABASE_URL: "https://test.supabase.co"
+          RECOUP_SUPABASE_KEY: "test-anon-key"
+          RECOUP_SUPABASE_SERVICE_KEY: "test-service-key"
+          RECOUP_SUPABASE_JWT_SECRET: "test-jwt-secret"

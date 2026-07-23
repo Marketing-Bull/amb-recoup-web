@@ -40,14 +40,15 @@ pip install -r requirements.txt
 
 ### 2. Create `.env`
 
-```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_SERVICE_ROLE_KEY=eyJ...
-JWT_SECRET=your-jwt-secret
-APP_SECRET_KEY=change-me-in-production
+```
+RECOUP_SUPABASE_URL=https://your-project.supabase.co
+RECOUP_SUPABASE_KEY=eyJ...
+RECOUP_SUPABASE_SERVICE_KEY=eyJ...
+RECOUP_SUPABASE_JWT_SECRET=your-jwt-secret
+RECOUP_APP_SECRET=change-me-in-production
 ```
 
-> Get `SUPABASE_SERVICE_ROLE_KEY` from your Supabase project settings > API. The `JWT_SECRET` is the JWT Secret in the same section.
+> Get `RECOUP_SUPABASE_KEY` (anon/public) and `RECOUP_SUPABASE_SERVICE_KEY` (service role) from your Supabase project settings > API. `RECOUP_SUPABASE_JWT_SECRET` is the JWT Secret in the same section — **required**: session cookies are signature-verified against it, so the app refuses to authenticate requests if it's unset. All variables must use the `RECOUP_` prefix (see `.env.example` for the full list — names map directly to `app/config.py` settings fields).
 
 ### 3. Run Supabase migrations
 

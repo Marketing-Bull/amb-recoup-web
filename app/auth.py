@@ -1,5 +1,5 @@
 from fastapi import Request, HTTPException, Depends
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.security import HTTPBearer
 from app.database import get_supabase_admin
 from app.models import UserContext
 from app.config import get_settings
@@ -26,9 +26,19 @@ async def get_current_user(request: Request) -> UserContext:
         raise HTTPException(status_code=401, detail="Not authenticated")
 
     settings = get_settings()
+    if not settings.supabase_jwt_secret:
+        # Fail closed: without a secret we cannot verify the token's signature,
+        # and accepting unverified claims allows full account impersonation.
+        raise HTTPException(status_code=500, detail="Server auth misconfigured")
     try:
-        # Decode JWT to get user info
-        payload = jwt.decode(token, options={"verify_signature": False})
+        # Verify signature + expiry against the Supabase project's JWT secret.
+        # Supabase issues tokens with aud="authenticated".
+        payload = jwt.decode(
+            token,
+            settings.supabase_jwt_secret,
+            algorithms=["HS256"],
+            audience="authenticated",
+        )
         user_id = payload.get("sub")
         email = payload.get("email", "")
 
