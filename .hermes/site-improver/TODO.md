@@ -61,12 +61,19 @@ Priority order: Bug fixes > Data integrity > Core feature parity > UX parity > N
       only, hidden on Edit) that JS-fill start/end/purpose/miles/round-trip/client/
       project on click. Covered by `tests/test_mileage_recent_trips.py` (dedup/order/
       limit logic + template render for New vs Edit states).
-- [ ] **PARITY-02** — Time: no "recent client/project pair" quick-fill and no smart
+- [x] **PARITY-02** — Time: no "recent client/project pair" quick-fill and no smart
       default prefill. Native app's `RecentPairChips.swift` + form-prefill behavior
       auto-selects the last-used client + project on the New Time Entry form. Web
       app always defaults both dropdowns to "None". Add: prefill last-used
       client_id/project_id (session or most-recent-entry lookup) as the default
       selected `<option>` on `time/form.html`'s New form.
+      ✅ DONE 2026-07-23 — added `most_recent_client_project(org_id)` to
+      `app/routers/time_entries.py` (looks up the org's most-recently-created
+      time entry, returns its client_id/project_id), wired into `new_time_form`
+      only. `templates/time/form.html`'s Client/Project selects now branch on
+      `entry` (edit mode, unchanged) vs `recent_client_id`/`recent_project_id`
+      (new mode). Covered by `tests/test_time_form_recent_prefill.py` (3 tests:
+      prefill-on-New, default-to-None-with-no-history, edit-form-unaffected).
 - [ ] **PARITY-03** — Expenses: no category quick-grid. Native app's
       `CategoryGrid.swift` gives a tappable icon grid instead of a `<select>` dropdown,
       and defaults to the last-used category. Web app's `expenses/form.html` uses a

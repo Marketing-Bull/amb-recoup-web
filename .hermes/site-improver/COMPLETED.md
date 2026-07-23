@@ -54,3 +54,23 @@ native SwiftUI app (amb-recoup). One entry per shipped PR.
   ordering, limit, chip-render-on-New, chip-hidden-on-Edit,
   no-chips-when-no-history). CI: ruff clean, bandit clean, pytest 14/14
   passed (fresh venv).
+
+## 2026-07-23 — PR #2 (cont. 2)
+
+- **PARITY-02** — Added a smart client/project prefill to the New Time Entry
+  form, matching the native app's `RecentPairChips.swift`. Added
+  `most_recent_client_project(org_id)` to `app/routers/time_entries.py`,
+  which looks up the org's most-recently-created `time_entries` row (by
+  `created_at`) and returns its `client_id`/`project_id`. Wired into
+  `new_time_form` only — the edit form (`edit_time_form`) is unchanged and
+  continues to use the entry's own saved values. `templates/time/form.html`'s
+  Client/Project `<select>` options now branch on `entry` (edit mode) vs.
+  `recent_client_id`/`recent_project_id` (new mode), so a user starting a
+  fresh time entry gets the same client+project pre-selected as their last
+  entry, instead of always seeing "None". No Supabase schema change needed
+  (reads existing `time_entries` columns only). Files:
+  `app/routers/time_entries.py`, `templates/time/form.html`,
+  `tests/test_time_form_recent_prefill.py` (new — 3 tests covering
+  prefill-on-New, default-to-None-with-no-history, and
+  edit-form-uses-entry-values-not-recent-prefill). CI: ruff clean, bandit
+  clean, pytest 17/17 passed (fresh venv).
