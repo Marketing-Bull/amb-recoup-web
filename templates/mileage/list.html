@@ -39,6 +39,9 @@
                             <button type="submit" class="btn btn-sm btn-secondary">Duplicate</button>
                         </form>
                         <a href="/mileage/{{ e.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                        <form method="post" action="/mileage/{{ e.id }}/delete" style="display:inline;" onsubmit="return confirm('Delete this trip?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}

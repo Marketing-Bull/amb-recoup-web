@@ -20,15 +20,36 @@ async def list_expenses(request: Request, user: UserContext = Depends(require_or
     })
 
 
+def most_recent_category(org_id: str) -> str | None:
+    """Return the category of the org's most recently created expense,
+    mirroring the native app's CategoryGrid smart-default behavior (defaults
+    to the last-used category instead of always "other")."""
+    supabase = get_supabase_admin()
+    resp = (
+        supabase.table("expenses")
+        .select("category")
+        .eq("organization_id", org_id)
+        .order("created_at", desc=True)
+        .limit(1)
+        .execute()
+    )
+    rows = resp.data or []
+    if not rows:
+        return None
+    return rows[0].get("category")
+
+
 @router.get("/new", response_class=HTMLResponse)
 async def new_expense_form(request: Request, user: UserContext = Depends(require_org_member)):
     supabase = get_supabase_admin()
     clients_resp = supabase.table("clients").select("id,name").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
     projects_resp = supabase.table("projects").select("id,name,client_id").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
+    recent_category = most_recent_category(user.organization_id)
     return templates.TemplateResponse("expenses/form.html", {
         "request": request, "user": user, "entry": None,
         "clients": clients_resp.data or [], "projects": projects_resp.data or [],
-        "categories": [c.value for c in ExpenseCategory]
+        "categories": [c.value for c in ExpenseCategory],
+        "recent_category": recent_category
     })
 
 
@@ -143,4 +164,11 @@ async def duplicate_expense(request: Request, entry_id: str, user: UserContext =
         "project_id": entry.get("project_id"),
     }
     supabase.table("expenses").insert(new_data).execute()
+    return RedirectResponse(url="/expenses", status_code=302)
+
+
+@router.post("/{entry_id}/delete")
+async def delete_expense(request: Request, entry_id: str, user: UserContext = Depends(require_org_member)):
+    supabase = get_supabase_admin()
+    supabase.table("expenses").delete().eq("id", entry_id).eq("organization_id", user.organization_id).execute()
     return RedirectResponse(url="/expenses", status_code=302)

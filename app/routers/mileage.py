@@ -20,14 +20,33 @@ async def list_mileage(request: Request, user: UserContext = Depends(require_org
     })
 
 
+def recent_trips(entries: list[dict], limit: int = 8) -> list[dict]:
+    """Distinct recent trips (keyed by addresses + round-trip + miles), most
+    recent first. Mirrors the native app's `Recents.recentTrips` (Services/Recents.swift)
+    so the web form can offer the same one-tap "repeat a trip" quick-fill."""
+    seen = set()
+    result = []
+    for e in sorted(entries, key=lambda e: e.get("created_at") or "", reverse=True):
+        key = (e.get("start_address", ""), e.get("end_address", ""), bool(e.get("round_trip")), e.get("miles"))
+        if key in seen:
+            continue
+        seen.add(key)
+        result.append(e)
+        if len(result) >= limit:
+            break
+    return result
+
+
 @router.get("/new", response_class=HTMLResponse)
 async def new_mileage_form(request: Request, user: UserContext = Depends(require_org_member)):
     supabase = get_supabase_admin()
     clients_resp = supabase.table("clients").select("id,name").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
     projects_resp = supabase.table("projects").select("id,name,client_id").eq("organization_id", user.organization_id).eq("is_archived", False).execute()
+    trips_resp = supabase.table("mileage_entries").select("*").eq("organization_id", user.organization_id).order("created_at", desc=True).limit(50).execute()
     return templates.TemplateResponse("mileage/form.html", {
         "request": request, "user": user, "entry": None,
-        "clients": clients_resp.data or [], "projects": projects_resp.data or []
+        "clients": clients_resp.data or [], "projects": projects_resp.data or [],
+        "recent_trips": recent_trips(trips_resp.data or [])
     })
 
 
@@ -136,4 +155,11 @@ async def duplicate_mileage(request: Request, entry_id: str, user: UserContext =
         "project_id": entry.get("project_id"),
     }
     supabase.table("mileage_entries").insert(new_data).execute()
+    return RedirectResponse(url="/mileage", status_code=302)
+
+
+@router.post("/{entry_id}/delete")
+async def delete_mileage(request: Request, entry_id: str, user: UserContext = Depends(require_org_member)):
+    supabase = get_supabase_admin()
+    supabase.table("mileage_entries").delete().eq("id", entry_id).eq("organization_id", user.organization_id).execute()
     return RedirectResponse(url="/mileage", status_code=302)

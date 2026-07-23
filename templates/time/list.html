@@ -36,6 +36,9 @@
                     <td><span style="font-size:0.75rem;color:var(--color-text-muted);">{{ e.details[:60] if e.details else '' }}</span></td>
                     <td style="text-align:right;">
                         <a href="/time/{{ e.id }}/edit" class="btn btn-sm btn-secondary">Edit</a>
+                        <form method="post" action="/time/{{ e.id }}/delete" style="display:inline;" onsubmit="return confirm('Delete this time entry?');">
+                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                        </form>
                     </td>
                 </tr>
                 {% endfor %}
